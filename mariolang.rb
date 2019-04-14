@@ -22,9 +22,20 @@ def elevdir(code, posx, posy)
   }
   return 0
 end
+
+def moveto(x, y)
+  print "\x1B[#{y+1};#{x+1}H"
+end
+
+def clear()
+  print "\x1B[2J"
+end
+
+
 code = []
 s.each { |line| code << line }
 s.close()
+
 vars = [0]
 varl = varp = 0
 posx = posy = 0
@@ -32,51 +43,75 @@ dirx = 1
 diry = 0
 elevator = false
 skip = 0
+output = ""
+visual = (ARGV.length == 1)
+delay = 0.01
+
+
+clear() if visual
+
 loop {
-	if posy < 0 then
-		STDERR.print "Error: trying to get out of the program!\n"
-		exit 1
-	end
-	if skip == 0 then
-		case code[posy][posx]
-			when "\""
-				diry = -1
-				elevator = false
-			when ")"
-				varp += 1
-				vars << 0 if varp > varl
-			when "("
-				varp -= 1
-				if varp < 0 then
-					STDERR.print "Error: trying to access Memory Cell -1\n"
-					exit 1
-				end
-			when "+"
-				vars[varp] += 1
-			when "-"
-				vars[varp] -= 1
-			when "."
-				print vars[varp].chr
-			when ":"
-				print "#{vars[varp]} "
-			when ","
-				vars[varp] = STDIN.getc.ord
-			when ";"
-				vars[varp] = STDIN.gets.to_i
-			when ">"
-				dirx = 1
-			when "<"
-				dirx = -1
-			when "^"
-				diry = -1
-			when "!"
-				dirx = diry = 0
-			when "["
-				skip = 2 if vars[varp] == 0
-			when "@"
-				dirx = -dirx
-		end
-	end
+  if visual then
+    moveto(0, 0)
+    code.each do | line |
+      print "\x1B[K" + line
+    end
+    moveto(posx, posy)
+    print "\x1B[41;1mM\x1B[0m"
+    moveto(0, code.length + 1)
+    print "Output:\n"
+    print output
+    sleep(delay)
+  end
+
+  if posy < 0 then
+    STDERR.print "Error: trying to get out of the program!\n"
+    exit 1
+  end
+
+  if skip == 0 then
+    case code[posy][posx]
+    when "\""
+      diry = -1
+      elevator = false
+    when ")"
+      varp += 1
+      vars << 0 if varp > vars.size - 1
+    when "("
+      varp -= 1
+      if varp < 0 then
+        STDERR.print "Error: trying to access Memory Cell -1\n"
+        exit 1
+      end
+    when "+"
+      vars[varp] += 1
+    when "-"
+      vars[varp] -= 1
+    when "."
+      print vars[varp].chr if not visual
+      output << vars[varp].chr if visual
+    when ":"
+      print "#{vars[varp]} " if not visual
+      output << "#{vars[varp]} " if visual
+    when ","
+      vars[varp] = STDIN.getc.ord
+    when ";"
+      vars[varp] = STDIN.gets.to_i
+    when ">"
+      dirx = 1
+    when "<"
+      dirx = -1
+    when "^"
+      diry = -1
+    when "!"
+      dirx = diry = 0
+    when "["
+      skip = 2 if vars[varp] == 0
+    when "@"
+      dirx = -dirx
+    end
+  end
+
   while code[posy][posx].nil?
     code[posy] << " "
   end
