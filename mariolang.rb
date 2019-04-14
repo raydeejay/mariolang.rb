@@ -80,33 +80,35 @@ loop {
   while code[posy][posx].nil?
     code[posy] << " "
   end
-	exit 0 if posy == code.length - 1 or posx >= code[posy+1].length
-	if "><@".include?(code[posy][posx]) and skip == 0 then
-		elevator = false
-		diry = 0
-		posx += dirx
-	elsif diry != 0 then
-		skip -= 1 if skip > 0
-		posy += diry
-		diry = 0 if !elevator
-	else
-		case code[posy+1][posx]
-			when "=", "|", "\""
-				posx += dirx
-			when "#"
-				posx += dirx
-				if dirx == 0 and code[posy][posx] == "!" and skip == 0 then
-					elevator = true
-					diry = elevdir(code, posx, posy)
-					if diry == 0 then
-						STDERR.print "Error: No matching elevator ending found!\n"
-						exit 1
-					end
-					posy += diry
-				end
-			else
-				posy += 1
-		end
-		skip -= 1 if skip > 0
-	end
+
+  exit 0 if posy == code.length - 1 or posx >= code[posy+1].length
+
+  if "><@".include?(code[posy][posx]) and skip == 0 then
+    elevator = false
+    diry = 0
+    posx += dirx
+  elsif diry != 0 then
+    skip -= 1 if skip > 0
+    posy += diry
+    diry = 0 if !elevator
+  else
+    case code[posy+1][posx]
+    when "=", "|", "\""
+      posx += dirx
+    when "#"
+      posx += dirx
+      if dirx == 0 and code[posy][posx] == "!" and skip == 0 then
+        elevator = true
+        diry = elevdir(code, posx, posy)
+        if diry == 0 then
+          STDERR.print "Error: No matching elevator ending found!\n"
+          exit 1
+        end
+        posy += diry
+      end
+    else
+      posy += 1
+    end
+    skip -= 1 if skip > 0
+  end
 }
