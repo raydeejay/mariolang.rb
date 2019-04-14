@@ -12,6 +12,9 @@ if ARGV.length == 0 then
   exit 1
 end
 
+code = []
+s.each { |line| code << line }
+s.close()
 
 def elevdir(code, posx, posy)
   0.upto(code.length-1) { |i|
@@ -31,39 +34,74 @@ def clear()
   print "\x1B[2J"
 end
 
+def colorForChar(c)
+  {
+    "=" => "33",
+    "-" => "31",
+    "+" => "32",
+    # "<" => "37;1",
+    # ">" => "37;1",
+    "(" => "33;1",
+    ")" => "33;1",
+    "#" => "31;1",
+    "\"" => "36;1",
+    "[" => "35;1",
+  }[c] or "0"
+end
 
-code = []
-s.each { |line| code << line }
-s.close()
+def printCode(code, x, y)
+  moveto(x, y)
+  print "\x1B[#{colorForChar(code[y][x])}m#{code[y][x]}\x1B[0m"
+end
+
+def printMario(x, y)
+  moveto(x, y)
+  print "\x1B[41;1mM\x1B[0m"
+end
+
+def printLevel(code)
+  clear()
+  moveto(0, 0)
+  code.each.with_index do | line, y |
+    moveto(0, y)
+    print "\x1B[K"
+    line.split('').each.with_index do | char, x |
+      printCode(code, x, y)
+    end
+  end
+  moveto(0, code.length + 1)
+  print "Output:\n"
+end
 
 vars = [0]
 varl = varp = 0
 posx = posy = 0
+oldx = oldy = 0
 dirx = 1
 diry = 0
 elevator = false
 skip = 0
 output = ""
 visual = (ARGV.length == 1)
-delay = 0.01
+delay = 0.02
 
 
-clear() if visual
+if visual then
+  printLevel(code)
+end
 
 loop {
   if visual then
-    moveto(0, 0)
-    code.each do | line |
-      print "\x1B[K" + line
-    end
-    moveto(posx, posy)
-    print "\x1B[41;1mM\x1B[0m"
-    moveto(0, code.length + 1)
-    print "Output:\n"
+    printCode(code, oldx, oldy)
+    printMario(posx, posy)
+    moveto(0, code.length + 2)
     print output
     sleep(delay)
   end
 
+  oldx = posx
+  oldy = posy
+  
   if posy < 0 then
     STDERR.print "Error: trying to get out of the program!\n"
     exit 1
