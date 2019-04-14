@@ -83,6 +83,7 @@ diry = 0
 elevator = false
 skip = 0
 output = ""
+outputCount = 4
 visual = (ARGV.length == 1)
 delay = 0.02
 
@@ -96,7 +97,8 @@ loop {
     printCode(code, oldx, oldy)
     printMario(posx, posy)
     moveto(0, code.length + 2)
-    print output
+    u = output.split("\n").last(outputCount).join("\n")
+    print "\x1B[0J#{u}"
     sleep(delay)
   end
 
