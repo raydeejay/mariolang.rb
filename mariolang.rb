@@ -1,10 +1,18 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
-if ARGV.length == 1 then
-	s = File.new(ARGV[0], "r")
-else
-	exit 1
+
+
+if ARGV.length == 2 then
+  s = File.new(ARGV[1], "r")
 end
+if ARGV.length == 1 then
+  s = File.new(ARGV[0], "r")
+end
+if ARGV.length == 0 then
+  exit 1
+end
+
+
 def elevdir(code, posx, posy)
 	0.upto(code.length-1) { |i|
 		return 0 if code[i].length < posx
