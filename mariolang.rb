@@ -14,10 +14,13 @@ end
 
 
 def elevdir(code, posx, posy)
-	0.upto(code.length-1) { |i|
-		return 0 if code[i].length < posx
-		return (if i < posy then -1 else 1 end) if code[i][posx] == "\""
-	}
+  0.upto(code.length-1) { |i|
+    if code[i].length >= posx then
+      # elevator will always find a higher stop point
+      return (if i < posy then -1 else 1 end) if code[i][posx] == "\""
+    end
+  }
+  return 0
 end
 code = []
 s.each { |line| code << line }
