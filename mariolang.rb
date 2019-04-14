@@ -50,6 +50,8 @@ end
 
 def printCode(code, x, y)
   moveto(x, y)
+  print "\x1B[0m "
+  moveto(x, y)
   print "\x1B[#{colorForChar(code[y][x])}m#{code[y][x]}\x1B[0m"
 end
 
