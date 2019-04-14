@@ -86,6 +86,7 @@ output = ""
 outputCount = 4
 visual = (ARGV.length == 1)
 delay = 0.02
+prefix = 0
 
 
 if visual then
@@ -112,6 +113,8 @@ loop {
 
   if skip == 0 then
     case code[posy][posx]
+    when ("0".."9")
+      prefix = prefix * 10 + code[posy][posx].to_i
     when "\""
       diry = -1
       elevator = false
@@ -125,9 +128,19 @@ loop {
         exit 1
       end
     when "+"
-      vars[varp] += 1
+      if prefix == 0 then
+        vars[varp] = (vars[varp] + 1) % 256
+      else
+        vars[varp] = (vars[varp] + prefix) % 256
+      end
+      prefix = 0
     when "-"
-      vars[varp] -= 1
+      if prefix == 0 then
+        vars[varp] = (vars[varp] - 1) % 256
+      else
+        vars[varp] = (vars[varp] - prefix) % 256
+      end
+      prefix = 0
     when "."
       print vars[varp].chr if not visual
       output << vars[varp].chr if visual
