@@ -12,8 +12,7 @@ if ARGV.length == 0 then
   exit 1
 end
 
-code = []
-s.each { |line| code << line }
+code = s.collect { |line| line }
 s.close()
 
 def elevdir(code, posx, posy)
