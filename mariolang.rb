@@ -128,10 +128,20 @@ loop {
         diry = -1
         elevator = false
       when ")"
-        varp += 1
-        vars << 0 if varp > vars.size - 1
+        if prefix == 0 then
+          varp += 1
+        else
+          varp += prefix
+        end
+        prefix = 0
+        vars << 0 while varp > vars.size - 1
       when "("
-        varp -= 1
+        if prefix == 0 then
+          varp -= 1
+        else
+          varp -= prefix
+        end
+        prefix = 0
         if varp < 0 then
           STDERR.print "Error: trying to access Memory Cell -1\n"
           exit 1
