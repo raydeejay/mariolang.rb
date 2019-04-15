@@ -87,7 +87,7 @@ outputCount = 4
 visual = (ARGV.length == 1)
 delay = 0.02
 prefix = 0
-
+should_collect = false
 
 if visual then
   printLevel(code)
@@ -105,69 +105,79 @@ loop {
 
   oldx = posx
   oldy = posy
-  
+
   if posy < 0 then
     STDERR.print "Error: trying to get out of the program!\n"
     exit 1
   end
 
   if skip == 0 then
-    case code[posy][posx]
-    when ("0".."9")
-      prefix = prefix * 10 + code[posy][posx].to_i
-    when "\""
-      diry = -1
-      elevator = false
-    when ")"
+    if should_collect and code[posy][posx] != "'" then
       varp += 1
       vars << 0 if varp > vars.size - 1
-    when "("
-      varp -= 1
-      if varp < 0 then
-        STDERR.print "Error: trying to access Memory Cell -1\n"
-        exit 1
+      vars[varp] = code[posy][posx].ord
+    else
+      case code[posy][posx]
+      when "'"
+        varp +=1 if should_collect
+        vars << 0 if varp > vars.size - 1
+        should_collect = !should_collect
+      when ("0".."9")
+        prefix = prefix * 10 + code[posy][posx].to_i
+      when "\""
+        diry = -1
+        elevator = false
+      when ")"
+        varp += 1
+        vars << 0 if varp > vars.size - 1
+      when "("
+        varp -= 1
+        if varp < 0 then
+          STDERR.print "Error: trying to access Memory Cell -1\n"
+          exit 1
+        end
+      when "+"
+        if prefix == 0 then
+          vars[varp] = (vars[varp] + 1) % 256
+        else
+          vars[varp] = (vars[varp] + prefix) % 256
+        end
+        prefix = 0
+      when "-"
+        if prefix == 0 then
+          vars[varp] = (vars[varp] - 1) % 256
+        else
+          vars[varp] = (vars[varp] - prefix) % 256
+        end
+        prefix = 0
+      when "."
+        print vars[varp].chr if not visual
+        output << vars[varp].chr if visual
+      when ":"
+        print "#{vars[varp]} " if not visual
+        output << "#{vars[varp]} " if visual
+      when ","
+        vars[varp] = STDIN.getc.ord
+      when ";"
+        vars[varp] = STDIN.gets.to_i
+      when ">"
+        dirx = 1
+      when "<"
+        dirx = -1
+      when "^"
+        diry = -1
+      when "!"
+        dirx = diry = 0
+      when "["
+        skip = 2 if vars[varp] == 0
+      when "@"
+        dirx = -dirx
       end
-    when "+"
-      if prefix == 0 then
-        vars[varp] = (vars[varp] + 1) % 256
-      else
-        vars[varp] = (vars[varp] + prefix) % 256
-      end
-      prefix = 0
-    when "-"
-      if prefix == 0 then
-        vars[varp] = (vars[varp] - 1) % 256
-      else
-        vars[varp] = (vars[varp] - prefix) % 256
-      end
-      prefix = 0
-    when "."
-      print vars[varp].chr if not visual
-      output << vars[varp].chr if visual
-    when ":"
-      print "#{vars[varp]} " if not visual
-      output << "#{vars[varp]} " if visual
-    when ","
-      vars[varp] = STDIN.getc.ord
-    when ";"
-      vars[varp] = STDIN.gets.to_i
-    when ">"
-      dirx = 1
-    when "<"
-      dirx = -1
-    when "^"
-      diry = -1
-    when "!"
-      dirx = diry = 0
-    when "["
-      skip = 2 if vars[varp] == 0
-    when "@"
-      dirx = -dirx
     end
-  end
 
-  while code[posy][posx].nil?
-    code[posy] << " "
+    while code[posy][posx].nil?
+      code[posy] << " "
+    end
   end
 
   exit 0 if posy == code.length - 1 or posx >= code[posy+1].length
