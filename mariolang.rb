@@ -83,7 +83,7 @@ diry = 0
 elevator = false
 skip = 0
 output = ""
-outputCount = 4
+outputCount = 20
 visual = (ARGV.length == 1)
 delay = 0.02
 prefix = 0
@@ -113,14 +113,14 @@ loop {
 
   if skip == 0 then
     if should_collect and code[posy][posx] != "'" then
+      vars[varp] = code[posy][posx].ord
       varp += 1
       vars << 0 if varp > vars.size - 1
-      vars[varp] = code[posy][posx].ord
     else
       case code[posy][posx]
       when "'"
-        varp +=1 if should_collect
-        vars << 0 if varp > vars.size - 1
+        # varp +=1 if should_collect
+        # vars << 0 if varp > vars.size - 1
         should_collect = !should_collect
       when ("0".."9")
         prefix = prefix * 10 + code[posy][posx].to_i
